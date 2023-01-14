@@ -11,6 +11,7 @@ import { GridColDef } from '@mui/x-data-grid'
 import useModalHook from '../api/hooks/useModalHook'
 import { toast } from 'react-toastify'
 import { handleApiError } from '../error/handleApiError'
+import { calculateTotalProfit } from '../utils/calc'
 
 
 const Actions = ({ trade }: { trade: TRADE }) => {
@@ -137,14 +138,21 @@ const TradeTable = ({ status }: { status: TRADE_STATUS }) => {
 
 			<Stack sx={{ py: 1, justifyContent: 'space-between', alignItems: 'center' }} >
 
-				<Select sx={{ width: 200 }} size="small" value={date} onChange={e => setDate(e.target.value)}>
-					<MenuItem value="today">today</MenuItem>
-					<MenuItem value="yesterday">yesterday</MenuItem>
-					<MenuItem value="last 7 days">last 7 days</MenuItem>
-					<MenuItem value="last 30 days">last 30 days</MenuItem>
-					<MenuItem value="last 90 days">last 90 days</MenuItem>
-					<MenuItem value="last 180 days">last 180 days</MenuItem>
-				</Select>
+
+				<Stack direction="row" spacing={2} alignItems="center">
+					<Select sx={{ width: 200 }} size="small" value={date} onChange={e => setDate(e.target.value)}>
+						<MenuItem value="today">today</MenuItem>
+						<MenuItem value="yesterday">yesterday</MenuItem>
+						<MenuItem value="last 7 days">last 7 days</MenuItem>
+						<MenuItem value="last 30 days">last 30 days</MenuItem>
+						<MenuItem value="last 90 days">last 90 days</MenuItem>
+						<MenuItem value="last 180 days">last 180 days</MenuItem>
+					</Select>
+
+					{
+					status=== 'CLOSED' &&	<Typography variant="h6" sx={{ fontWeight: 'bold' }}>Total Profit {calculateTotalProfit(data || []).toFixed(2)}</Typography>
+					}
+				</Stack>
 
 
 				<SymbolFilter handleChange={handleSymbolChange} />
