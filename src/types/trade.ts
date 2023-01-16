@@ -14,3 +14,8 @@ export type TICKER = {
 	symbol: string;
 }
 
+
+export type BINANCE_TICKER_STREAM = {
+	s: string;
+	c: string;
+}

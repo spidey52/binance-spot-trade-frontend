@@ -102,7 +102,6 @@ const TradeTable = ({ status }: { status: TRADE_STATUS }) => {
 	const [date, setDate] = React.useState('today' as string)
 
 	const handleSymbolChange = (symbol: string) => {
-
 		console.log(symbol)
 	}
 
@@ -113,17 +112,19 @@ const TradeTable = ({ status }: { status: TRADE_STATUS }) => {
 			{ field: 'quantity', headerName: 'Quantity', flex: 1, minWidth: 100 },
 			{ field: 'buyPrice', headerName: 'Buy Price', flex: 1, minWidth: 100 },
 			{
-				field: 'sellPrice', headerName: 'Sell Price', flex: 1, minWidth: 100,
+				field: 'sellPrice', headerName: 'Sell Price', flex: 1, minWidth: 100, hide: status === 'OPEN',
 			},
+			{ field: "profit", headerName: "profit", hide: status === 'CLOSED' },
 			{ field: 'createdAt', headerName: 'Created At', flex: 1, minWidth: 100 },
 			{ field: 'updatedAt', headerName: 'Updated At', flex: 1, minWidth: 100 },
 			{
-				field: 'action', headerName: 'Action', flex: 1, minWidth: 180, renderCell: (params) => <Actions trade={params.row as TRADE} />
+				field: 'action', headerName: 'Action', flex: 1, minWidth: 180, renderCell: (params) => <Actions trade={params.row as TRADE} />,
+				hide: status === 'CLOSED'
 			}
 		]
 
-		if (status === 'OPEN') columns.splice(3, 1)
-		if (status === 'CLOSED') columns.splice(-1, 1)
+		// if (status === 'OPEN') columns.splice(3, 1)
+		// if (status === 'CLOSED') columns.splice(-1, 1)
 
 		return columns
 
@@ -150,7 +151,7 @@ const TradeTable = ({ status }: { status: TRADE_STATUS }) => {
 					</Select>
 
 					{
-					status=== 'CLOSED' &&	<Typography variant="h6" sx={{ fontWeight: 'bold' }}>Total Profit {calculateTotalProfit(data || []).toFixed(2)}</Typography>
+						status === 'CLOSED' && <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Total Profit {calculateTotalProfit(data || []).toFixed(2)}</Typography>
 					}
 				</Stack>
 

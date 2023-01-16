@@ -6,6 +6,7 @@ import TradeList from './components/TradeList'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import CreateTrade from './components/CreateTrade'
 import CreateTicker from './components/CreateTicker'
+import MyTicker from './components/MyTicker'
 
 const theme = createTheme({
 
@@ -57,9 +58,10 @@ function App() {
           <AppBar position="static">
             <Toolbar >
               <Box sx={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: 'center' }}>
-                <Box sx={{ flexGrow: 1 }}>
-                  <img src={reactLogo} className="App-logo" alt="logo" />
-                </Box>
+                <img src={reactLogo} className="App-logo" alt="logo" />
+                <Stack direction="row" sx={{ alignItems: 'center' }}>
+                  <MyTicker />
+                </Stack>
                 <Stack>
                   <CreateTrade />
                   <CreateTicker />

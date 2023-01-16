@@ -1,6 +1,7 @@
 import axios from "axios"
 import { useMutation, useQuery, useQueryClient } from "react-query"
 import { API_URL } from "../../config/apiEndPoint"
+import { TICKER } from "../../types/trade"
 
 
 export const useTickerListHook = () => {
@@ -10,7 +11,7 @@ export const useTickerListHook = () => {
 	}
 
 	return useQuery(['ticker'], fetchTicker, {
-		select: (data) => data.data,
+		select: (data) => data.data as TICKER[],
 		cacheTime: Infinity
 	})
 
