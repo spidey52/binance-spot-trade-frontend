@@ -1,4 +1,5 @@
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider, MenuItem, Select, TextField, Typography } from '@mui/material'
+import {
+ Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider, MenuItem, Select, TextField, Typography } from '@mui/material'
 import moment from 'moment'
 import { Stack } from '@mui/system'
 import React from 'react'
@@ -12,12 +13,23 @@ import useModalHook from '../api/hooks/useModalHook'
 import { toast } from 'react-toastify'
 import { handleApiError } from '../error/handleApiError'
 import { calculateTotalProfit } from '../utils/calc'
+import { useSelector } from 'react-redux'
+import { RootState } from '../redux/store'
+
+const dates = [
+	{ label: 'Today', value: moment().startOf('day').format('YYYY-MM-DD') },
+	{ label: 'Yesterday', value: moment().subtract(1, 'days').startOf('day').format('YYYY-MM-DD') },
+	{ label: 'Last 7 days', value: moment().subtract(7, 'days').startOf('day').format('YYYY-MM-DD') },
+	{ label: 'Last 30 days', value: moment().subtract(30, 'days').startOf('day').format('YYYY-MM-DD') },
+	{ label: 'Last 90 days', value: moment().subtract(90, 'days').startOf('day').format('YYYY-MM-DD') },
+	{ label: 'All time', value: moment().subtract(10, 'years').startOf('day').format('YYYY-MM-DD') },
+]
 
 
 const Actions = ({ trade }: { trade: TRADE }) => {
 	return (
 		<Stack spacing={1} alignItems="center">
-			<DeleteTrade trade={trade} />
+			{/* <DeleteTrade trade={trade} /> */}
 			<SellTrade trade={trade} />
 		</Stack>
 	)
@@ -40,6 +52,8 @@ const SellTrade = ({ trade }: { trade: TRADE }) => {
 		}
 	}
 
+
+
 	return (
 		<>
 			<Button variant="contained" color="success" onClick={handleOpen}>Sell</Button>
@@ -61,48 +75,60 @@ const SellTrade = ({ trade }: { trade: TRADE }) => {
 		</>)
 }
 
-const DeleteTrade = ({ trade }: { trade: TRADE }) => {
-	const { open, handleOpen, handleClose } = useModalHook()
-	const { mutateAsync, isLoading } = useDeleteTradeHook()
+// const DeleteTrade = ({ trade }: { trade: TRADE }) => {
+// 	const { open, handleOpen, handleClose } = useModalHook()
+// 	const { mutateAsync, isLoading } = useDeleteTradeHook()
 
-	const handleDelete = async () => {
-		try {
-			await mutateAsync(trade._id)
-			toast.success('Trade deleted')
-			handleClose()
-		} catch (error) {
-			handleApiError(error)
-		}
-	}
-	return (
-		<>
-			<Button variant="contained" color="error" onClick={handleOpen}>Delete</Button>
-			<Dialog open={open} onClose={handleClose}>
-				<DialogTitle> Delete Title  </DialogTitle>
-				<DialogContent>
-					<Typography>Are you sure you want to delete this trade?</Typography>
-				</DialogContent>
+// 	const handleDelete = async () => {
+// 		try {
+// 			await mutateAsync(trade._id)
+// 			toast.success('Trade deleted')
+// 			handleClose()
+// 		} catch (error) {
+// 			handleApiError(error)
+// 		}
+// 	}
+// 	return (
+// 		<>
+// 			<Button variant="contained" color="error" onClick={handleOpen}>Delete</Button>
+// 			<Dialog open={open} onClose={handleClose}>
+// 				<DialogTitle> Delete Title  </DialogTitle>
+// 				<DialogContent>
+// 					<Typography>Are you sure you want to delete this trade?</Typography>
+// 				</DialogContent>
 
-				<DialogActions>
-					<Button onClick={handleClose}>Cancel</Button>
-					<Button color='error' onClick={handleDelete} disabled={isLoading}>Delete</Button>
-				</DialogActions>
+// 				<DialogActions>
+// 					<Button onClick={handleClose}>Cancel</Button>
+// 					<Button color='error' onClick={handleDelete} disabled={isLoading}>Delete</Button>
+// 				</DialogActions>
 
 
-			</Dialog>
-		</>
-	)
-}
+// 			</Dialog>
+// 		</>
+// 	)
+// }
 
 
 
 
 const TradeTable = ({ status }: { status: TRADE_STATUS }) => {
-	const { data, isLoading, isRefetching } = useTradeListHook({ status })
-	const [date, setDate] = React.useState('today' as string)
+	const [symbol, setSymbol] = React.useState('')
+	const [date, setDate] = React.useState(
+  moment().subtract(10, "years").startOf("day").format("YYYY-MM-DD")
+ );
+	const { data, isLoading, isRefetching } = useTradeListHook({ status, symbol, date })
 
 	const handleSymbolChange = (symbol: string) => {
-		console.log(symbol)
+		setSymbol(symbol)
+	}
+
+	const { tickers } = useSelector((state: RootState) => state.tickers)
+
+	const getTickerProfit = (symbol: string, buyPrice: number, quantity: number) => {
+		const profit = ((tickers[symbol] - buyPrice) * quantity).toFixed(2);
+		if (!profit) return { profit: 0, percentage: 0 }
+		const percentage = ((tickers[symbol] - buyPrice) / buyPrice * 100).toFixed(2);
+		return { profit, percentage }
 	}
 
 
@@ -112,46 +138,55 @@ const TradeTable = ({ status }: { status: TRADE_STATUS }) => {
 			{ field: 'quantity', headerName: 'Quantity', flex: 1, minWidth: 100 },
 			{ field: 'buyPrice', headerName: 'Buy Price', flex: 1, minWidth: 100 },
 			{
+				field: 'currentPrice', headerName: "Current Price", flex: 1, minWidth: 100,
+				hide: status === 'CLOSED',
+			},
+			{
 				field: 'sellPrice', headerName: 'Sell Price', flex: 1, minWidth: 100, hide: status === 'OPEN',
 			},
-			{ field: "profit", headerName: "profit", hide: status === 'CLOSED' },
-			{ field: 'createdAt', headerName: 'Created At', flex: 1, minWidth: 100 },
-			{ field: 'updatedAt', headerName: 'Updated At', flex: 1, minWidth: 100 },
 			{
-				field: 'action', headerName: 'Action', flex: 1, minWidth: 180, renderCell: (params) => <Actions trade={params.row as TRADE} />,
+				field: "profit", headerName: "profit", width: 150,
+				hide: status === 'CLOSED',
+				sortComparator: (v1, v2, param1, param2) => { return Number(v1.profit) - Number(v2.profit) },
+				renderCell: ({ value }) => {
+					return <Stack direction="row" spacing={1}>
+						<Typography>{value.profit}</Typography>
+						<Typography sx={{ color: Number(value.percentage) > 0 ? "green" : "red" }} >({value.percentage}%)</Typography>
+
+					</Stack>
+				}
+			},
+			{ field: 'createdAt', headerName: 'Created At', flex: 1, minWidth: 100 },
+			{
+				field: 'updatedAt', headerName: 'Updated At', flex: 1, minWidth: 100,
+				hide: status === 'OPEN',
+			},
+			{
+				field: 'action', headerName: 'Action', flex: 1, minWidth: 80, renderCell: (params) => <Actions trade={params.row as TRADE} />,
 				hide: status === 'CLOSED'
 			}
 		]
-
-		// if (status === 'OPEN') columns.splice(3, 1)
-		// if (status === 'CLOSED') columns.splice(-1, 1)
-
 		return columns
-
 	},
 		[status])
-
-
-
 
 	return (
 		<Box sx={{ width: "100%" }}>
 
 			<Stack sx={{ py: 1, justifyContent: 'space-between', alignItems: 'center' }} >
 
-
 				<Stack direction="row" spacing={2} alignItems="center">
 					<Select sx={{ width: 200 }} size="small" value={date} onChange={e => setDate(e.target.value)}>
-						<MenuItem value="today">today</MenuItem>
-						<MenuItem value="yesterday">yesterday</MenuItem>
-						<MenuItem value="last 7 days">last 7 days</MenuItem>
-						<MenuItem value="last 30 days">last 30 days</MenuItem>
-						<MenuItem value="last 90 days">last 90 days</MenuItem>
-						<MenuItem value="last 180 days">last 180 days</MenuItem>
+						{
+							dates.map((date) => {
+								return <MenuItem key={date.label} value={date.value}>{date.label}</MenuItem>
+							})
+						}
+
 					</Select>
 
 					{
-						status === 'CLOSED' && <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Total Profit {calculateTotalProfit(data || []).toFixed(2)}</Typography>
+						status === 'CLOSED' && <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Total Profit {Number(calculateTotalProfit(data || []).toFixed(2))}</Typography>
 					}
 				</Stack>
 
@@ -170,6 +205,8 @@ const TradeTable = ({ status }: { status: TRADE_STATUS }) => {
 							...trade,
 							id: trade._id,
 							sno: index + 1,
+							currentPrice: tickers[trade.symbol],
+							profit: status === 'CLOSED' ? "" : getTickerProfit(trade.symbol, trade.buyPrice, trade.quantity),
 							createdAt: moment(trade.createdAt).format('DD-MM-YYYY HH:mm'),
 							updatedAt: moment(trade.updatedAt).format('DD-MM-YYYY HH:mm'),
 						}

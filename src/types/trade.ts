@@ -7,6 +7,7 @@ export type TRADE = {
 	buyPrice: number,
 	sellPrice: number,
 	quantity: number,
+	symbol: string
 }
 
 export type TICKER = {

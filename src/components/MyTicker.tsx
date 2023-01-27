@@ -1,7 +1,9 @@
 import { colors, Stack, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 import React, { useEffect, useState } from 'react'
+import { useDispatch } from 'react-redux'
 import { useTickerListHook } from '../api/services/useTickerHook'
+import { setGlobalTickers } from '../redux/slices/ticker.slice'
 import Ticker from '../Tickers/Ticker'
 import { BINANCE_TICKER_STREAM, TICKER } from '../types/trade'
 
@@ -22,8 +24,15 @@ const MyTicker = () => {
 		}
 	}, [tickersData]);
 
+	const dispatch = useDispatch()
 
-
+	useEffect(() => {
+		const obj: any = {}
+		for (let i = 0; i < tickers.length; i++) {
+			obj[tickers[i].getName()] = tickers[i].getPrice()
+		}
+		dispatch(setGlobalTickers(obj));
+	}, [tickers])
 
 	useEffect(() => {
 		const ws = new WebSocket('wss://stream.binance.com:9443/ws/!miniTicker@arr')
@@ -73,10 +82,10 @@ const MyTicker = () => {
 			{
 				tickers.map((ticker, index) => {
 					return (
-						<Stack direction="row" spacing={0.5} alignItems="center">
+						<Stack direction="row" spacing={0.5} alignItems="center" key={ticker.getName()}>
 							<Typography>{ticker.getName()}</Typography>
 							<Typography variant='subtitle1' sx={{
-								color: ticker.getColor() 
+								color: ticker.getColor()
 							}}>
 								{ticker.getPrice()}
 							</Typography>
