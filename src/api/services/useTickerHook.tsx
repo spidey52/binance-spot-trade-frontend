@@ -1,34 +1,45 @@
-import axios from "axios"
-import { useMutation, useQuery, useQueryClient } from "react-query"
-import { API_URL } from "../../config/apiEndPoint"
-import { TICKER } from "../../types/trade"
-
+import axios from "axios";
+import { useMutation, useQuery, useQueryClient } from "react-query";
+import { API_URL } from "../../config/apiEndPoint";
+import { TICKER } from "../../types/trade";
 
 export const useTickerListHook = () => {
+ const fetchTicker = async () => {
+  return axios.get(API_URL.TICKER_LIST);
+ };
 
-	const fetchTicker = async () => {
-		return axios.get(API_URL.TICKER_LIST)
-	}
-
-	return useQuery(['ticker'], fetchTicker, {
-		select: (data) => data.data as TICKER[],
-		cacheTime: Infinity
-	})
-
-}
+ return useQuery(["ticker"], fetchTicker, {
+  select: (data) => data.data as TICKER[],
+  cacheTime: Infinity,
+ });
+};
 
 export const useCreateTickerHook = () => {
+ const createTicker = async (ticker: string) => {
+  return axios.post(API_URL.TICKER_LIST, { ticker });
+ };
 
-	const createTicker = async (ticker: string) => {
-		return axios.post(API_URL.TICKER_LIST, { ticker })
-	}
+ const queryClient = useQueryClient();
 
-	const queryClient = useQueryClient()
+ return useMutation(createTicker, {
+  onSuccess: () => {
+   queryClient.invalidateQueries(["ticker"]);
+  },
+ });
+};
 
-	return useMutation(createTicker, {
-		onSuccess: () => {
-			queryClient.invalidateQueries(['ticker'])
-		}
-	})
+export const useUpdateTickerHook = () => {
+ const updateTicker = async (ticker: TICKER) => {
+  return axios.patch(`${API_URL.TICKER_LIST}/${ticker._id}`, ticker);
+ };
 
-}
+ const queryClient = useQueryClient();
+
+ return useMutation(updateTicker, {
+  onSuccess: () => {
+   queryClient.invalidateQueries(["ticker"]);
+  },
+ });
+};
+
+export const useDeleteTickerHook = () => {};

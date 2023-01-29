@@ -16,6 +16,7 @@ import CreateTrade from "./components/CreateTrade";
 import CreateTicker from "./components/CreateTicker";
 import MyTicker from "./components/MyTicker";
 import ProfitChart from "./components/ProfitChart";
+import TickerTable from "./components/tickers/TickerTable";
 
 const theme = createTheme({
  palette: {
@@ -70,9 +71,7 @@ function App() {
         }}
        >
         <img src={reactLogo} className='App-logo' alt='logo' />
-        <Stack direction='row' sx={{ alignItems: "center" }}>
-         <MyTicker />
-        </Stack>
+        <Stack direction='row' sx={{ alignItems: "center" }}></Stack>
         <Stack>
          <CreateTrade />
          <CreateTicker />
@@ -81,7 +80,9 @@ function App() {
       </Toolbar>
      </AppBar>
 
+     <MyTicker />
      <TradeList />
+     <TickerTable />
      <ProfitChart />
     </Box>
    </QueryClientProvider>
