@@ -23,6 +23,12 @@ const TickerColumns: GridColDef[] = [
   flex: 1,
  },
  {
+  field: "precision",
+  headerName: "Precision",
+  editable: true,
+  flex: 1,
+ },
+ {
   field: "loopEnabled",
   headerName: "Loop Enabled",
   renderCell: (params: any) => <RenderLoopEnabled params={params} />,

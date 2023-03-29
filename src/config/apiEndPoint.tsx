@@ -6,4 +6,7 @@ export const API_URL = {
  TRADE_LIST: `${BASE_URL}/trades`,
  TICKER_LIST: `${BASE_URL}/tickers`,
  REPORT_PROFIT: `${BASE_URL}/reports`,
+
+ //  orders
+ ORDER_LIST: `${BASE_URL}/orders`,
 };

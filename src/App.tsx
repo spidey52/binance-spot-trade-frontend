@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import reactLogo from "./assets/react.svg";
 import "./App.css";
 import {
@@ -6,6 +6,8 @@ import {
  Box,
  createTheme,
  CssBaseline,
+ Grid,
+ Paper,
  Stack,
  ThemeProvider,
  Toolbar,
@@ -17,6 +19,7 @@ import CreateTicker from "./components/CreateTicker";
 import MyTicker from "./components/MyTicker";
 import ProfitChart from "./components/ProfitChart";
 import TickerTable from "./components/tickers/TickerTable";
+import OrderTable from "./components/orders/OrderTable";
 
 const theme = createTheme({
  palette: {
@@ -53,8 +56,6 @@ queryClient.setDefaultOptions({
 });
 
 function App() {
- const [count, setCount] = useState(0);
-
  return (
   <ThemeProvider theme={theme}>
    <QueryClientProvider client={queryClient}>
@@ -82,7 +83,17 @@ function App() {
 
      <MyTicker />
      <TradeList />
-     <TickerTable />
+
+     <Box sx={{ m: 2, p: 2 }} component={Paper}>
+      <Grid container spacing={2}>
+       <Grid item xs={12} lg={6}>
+        <TickerTable />
+       </Grid>
+       <Grid item xs={12} lg={6}>
+        <OrderTable />
+       </Grid>
+      </Grid>
+     </Box>
      <ProfitChart />
     </Box>
    </QueryClientProvider>

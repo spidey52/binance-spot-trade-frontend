@@ -29,6 +29,7 @@ const TableData = ({
     rows={rows}
     columns={columns}
     pagination
+    paginationMode="server"
     disableSelectionOnClick
     disableVirtualization
     sx={{

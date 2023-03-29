@@ -7,21 +7,33 @@ type tradeParams = {
  status?: TRADE_STATUS;
  symbol?: string;
  date?: string;
+ page?: number;
+ limit?: number;
 };
 
-export const useTradeListHook = ({ status, symbol, date }: tradeParams) => {
+export const useTradeListHook = ({ status, symbol, date, page, limit }: tradeParams) => {
  const params: any = {};
 
  if (status && status !== "ALL") params.status = status;
  if (symbol) params.symbol = symbol;
  if (date) params.date = date;
+ if (page) params.page = page;
+ if (limit) params.limit = limit;
 
  const fetchTrades = async () => {
   return axios.get(API_URL.TRADE_LIST, { params });
  };
 
- return useQuery(["trades", symbol, status, date], fetchTrades, {
-  select: (data) => data.data,
+ return useQuery(["trades", symbol, status, date, page, limit], fetchTrades, {
+  // initialData: { allTrades: [], totalProfit: 0 } as any,
+  onError: (error) => {
+   return { allTrades: [], totalProfit: 0, total: 0 } as any;
+  },
+  select: (data) => ({
+   allTrades: data.data.allTrades,
+   totalProfit: data.data.totalProfit,
+   total: data.data.total || 0,
+  }),
  });
 };
 
