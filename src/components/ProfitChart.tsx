@@ -5,6 +5,8 @@ import useReportHook from "../api/services/useReportHook";
 import { Box } from "@mui/system";
 import { Button, Paper, Switch, ToggleButton, Typography } from "@mui/material";
 import { useBoolean } from "react-use";
+import { useSelector } from "react-redux";
+import { RootState } from "../redux/store";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -13,7 +15,10 @@ const options: ChartOptions<"bar"> = {
 };
 
 const ProfitChart = () => {
- const { data, isLoading } = useReportHook();
+ const { model } = useSelector((state: RootState) => state.tickers);
+ const { data, isLoading } = useReportHook({
+  future: model === "FUTURE",
+ });
  const [showTotalProfit, setShowTotalProfit] = useBoolean(false);
 
  const chartData = useMemo(() => {

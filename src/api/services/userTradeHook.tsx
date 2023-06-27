@@ -9,9 +9,10 @@ type tradeParams = {
  date?: string;
  page?: number;
  limit?: number;
+ market?: string;
 };
 
-export const useTradeListHook = ({ status, symbol, date, page, limit }: tradeParams) => {
+export const useTradeListHook = ({ status, symbol, date, page, limit, market }: tradeParams) => {
  const params: any = {};
 
  if (status && status !== "ALL") params.status = status;
@@ -19,12 +20,13 @@ export const useTradeListHook = ({ status, symbol, date, page, limit }: tradePar
  if (date) params.date = date;
  if (page) params.page = page;
  if (limit) params.limit = limit;
+ if (limit) params.market = market;
 
  const fetchTrades = async () => {
   return axios.get(API_URL.TRADE_LIST, { params });
  };
 
- return useQuery(["trades", symbol, status, date, page, limit], fetchTrades, {
+ return useQuery(["trades", symbol, status, date, page, limit, market], fetchTrades, {
   // initialData: { allTrades: [], totalProfit: 0 } as any,
   onError: (error) => {
    return { allTrades: [], totalProfit: 0, total: 0 } as any;

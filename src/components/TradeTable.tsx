@@ -1,4 +1,4 @@
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider, MenuItem, Select, TextField, Typography } from "@mui/material";
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider, MenuItem, Select, SelectChangeEvent, TextField, Typography } from "@mui/material";
 import moment from "moment";
 import { Stack } from "@mui/system";
 import React from "react";
@@ -11,9 +11,10 @@ import { GridColDef } from "@mui/x-data-grid";
 import useModalHook from "../api/hooks/useModalHook";
 import { toast } from "react-toastify";
 import { handleApiError } from "../error/handleApiError";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 import usePaginationHook from "../api/hooks/usePaginationHook";
+import { setModel } from "../redux/slices/ticker.slice";
 
 const dates = [
  { label: "Today", value: moment().startOf("day").format("YYYY-MM-DD") },
@@ -125,6 +126,11 @@ const dates = [
 const TradeTable = ({ status }: { status: TRADE_STATUS }) => {
  const { limit, page, setLimit, setPage } = usePaginationHook({ limit: 100, page: 0 });
  const [symbol, setSymbol] = React.useState("");
+ //  const [market, setMarket] = React.useState("SPOT");
+
+ const { tickers, model } = useSelector((state: RootState) => state.tickers);
+ const dispatch = useDispatch();
+
  const [date, setDate] = React.useState(moment().subtract(10, "years").startOf("day").format("YYYY-MM-DD"));
  const { data, isLoading, isRefetching } = useTradeListHook({
   status,
@@ -132,13 +138,12 @@ const TradeTable = ({ status }: { status: TRADE_STATUS }) => {
   date,
   limit,
   page,
+  market: model,
  });
 
  const handleSymbolChange = (symbol: string) => {
   setSymbol(symbol);
  };
-
- const { tickers } = useSelector((state: RootState) => state.tickers);
 
  const getTickerProfit = (symbol: string, buyPrice: number, quantity: number) => {
   const profit = ((tickers[symbol] - buyPrice) * quantity).toFixed(2);
@@ -194,6 +199,10 @@ const TradeTable = ({ status }: { status: TRADE_STATUS }) => {
   ];
   return columns;
  }, [status]);
+ const handleModelChange = (e: SelectChangeEvent) => {
+  if (e.target.value === "SPOT") dispatch(setModel("SPOT"));
+  else dispatch(setModel("FUTURE"));
+ };
 
  return (
   <Box sx={{ width: "100%" }}>
@@ -207,6 +216,10 @@ const TradeTable = ({ status }: { status: TRADE_STATUS }) => {
         </MenuItem>
        );
       })}
+     </Select>
+     <Select sx={{ width: 200 }} size='small' value={model} onChange={handleModelChange}>
+      <MenuItem value='SPOT'>SPOT</MenuItem>
+      <MenuItem value='FUTURE'>FUTURE</MenuItem>
      </Select>
 
      {status === "CLOSED" && (
