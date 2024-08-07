@@ -1,13 +1,13 @@
-import { colors, Container, Stack, Typography } from "@mui/material";
-import { Box } from "@mui/system";
+import { Box, Stack, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+import Ticker from "../Tickers/Ticker";
 import { useTickerListHook } from "../api/services/useTickerHook";
 import { setGlobalTickers } from "../redux/slices/ticker.slice";
-import Ticker from "../Tickers/Ticker";
 import { BINANCE_TICKER_STREAM, TICKER } from "../types/trade";
 
-const MyTicker = () => {
+const MyTicker = ({ isVisible = false }) => {
+ const [visible, setVisible] = useState<boolean>(isVisible);
  const [tickers, setTickers] = React.useState<Ticker[]>([]);
  const [allowedTickers, setAllowedTickers] = useState<string[]>([]);
 
@@ -53,17 +53,11 @@ const MyTicker = () => {
    setTickers((prev) => {
     const newTickers = [...prev];
     tempTickers.forEach((tempTicker) => {
-     const index = newTickers.findIndex(
-      (ticker) => ticker.getName() === tempTicker.getName()
-     );
+     const index = newTickers.findIndex((ticker) => ticker.getName() === tempTicker.getName());
 
      if (index > -1) {
       const prevPrice = newTickers[index].getPrice();
-      const ticker = new Ticker(
-       tempTicker.getName(),
-       tempTicker.getPrice(),
-       prevPrice
-      );
+      const ticker = new Ticker(tempTicker.getName(), tempTicker.getPrice(), prevPrice);
       newTickers[index] = ticker;
      } else {
       newTickers.push(tempTicker);
@@ -83,35 +77,27 @@ const MyTicker = () => {
  }, [allowedTickers]);
 
  return (
-  <Stack
-   direction='row'
-   spacing={1}
-   alignItems='center'
-   justifyContent='center'
-   sx={{ flexWrap: "wrap", mt: 2 }}
-   component={Container}
-  >
-   {tickers.map((ticker, index) => {
-    return (
-     <Stack
-      direction='row'
-      spacing={0.5}
-      alignItems='center'
-      key={ticker.getName()}
-     >
-      <Typography>{ticker.getName()}</Typography>
-      <Typography
-       variant='subtitle1'
-       sx={{
-        color: ticker.getColor(),
-       }}
-      >
-       {ticker.getPrice()}
-      </Typography>
-     </Stack>
-    );
-   })}
-  </Stack>
+  <Box>
+   {visible && (
+    <Stack direction='row' spacing={1} sx={{ p: 2, overflow: "auto" }}>
+     {tickers.map((ticker, index) => {
+      return (
+       <Stack direction='row' spacing={0.5} sx={{ alignItems: "center" }} key={ticker.getName()}>
+        <Typography>{ticker.getName()}</Typography>
+        <Typography
+         variant='subtitle1'
+         sx={{
+          color: ticker.getColor(),
+         }}
+        >
+         {ticker.getPrice()}
+        </Typography>
+       </Stack>
+      );
+     })}
+    </Stack>
+   )}
+  </Box>
  );
 };
 

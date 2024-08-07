@@ -1,11 +1,11 @@
-import React, { useMemo } from "react";
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, DatasetChartOptions, DatasetController, ChartDataset, ChartOptions, ChartData } from "chart.js";
-import { Bar } from "react-chartjs-2";
-import useReportHook from "../api/services/useReportHook";
+import { Paper, Switch, Typography } from "@mui/material";
 import { Box } from "@mui/system";
-import { Button, Paper, Switch, ToggleButton, Typography } from "@mui/material";
-import { useBoolean } from "react-use";
+import { BarElement, CategoryScale, Chart as ChartJS, ChartOptions, Legend, LinearScale, Title, Tooltip } from "chart.js";
+import { useMemo } from "react";
+import { Bar } from "react-chartjs-2";
 import { useSelector } from "react-redux";
+import { useBoolean } from "react-use";
+import { useReportHook } from "../api/services/useReportHook";
 import { RootState } from "../redux/store";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);

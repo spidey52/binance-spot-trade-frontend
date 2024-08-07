@@ -1,20 +1,17 @@
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider, MenuItem, Select, SelectChangeEvent, TextField, Typography } from "@mui/material";
-import moment from "moment";
+import { Box, MenuItem, Select, SelectChangeEvent, Typography } from "@mui/material";
 import { Stack } from "@mui/system";
+import moment from "moment";
 import React from "react";
-import { useDeleteTradeHook, useTradeListHook, useUpdateTradeHook } from "../api/services/userTradeHook";
+import { useTradeListHook } from "../api/services/userTradeHook";
 // import { TRADE_COLUMNS } from '../columns/trade.columns'
+import { GridColDef } from "@mui/x-data-grid";
+import { useDispatch, useSelector } from "react-redux";
+import usePaginationHook from "../api/hooks/usePaginationHook";
+import { setModel } from "../redux/slices/ticker.slice";
+import { RootState } from "../redux/store";
 import { TRADE, TRADE_STATUS } from "../types/trade";
 import SymbolFilter from "./SymbolFilter";
 import TableData from "./TableData";
-import { GridColDef } from "@mui/x-data-grid";
-import useModalHook from "../api/hooks/useModalHook";
-import { toast } from "react-toastify";
-import { handleApiError } from "../error/handleApiError";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../redux/store";
-import usePaginationHook from "../api/hooks/usePaginationHook";
-import { setModel } from "../redux/slices/ticker.slice";
 
 const dates = [
  { label: "Today", value: moment().startOf("day").format("YYYY-MM-DD") },
@@ -40,93 +37,9 @@ const dates = [
  },
 ];
 
-// const Actions = ({ trade }: { trade: TRADE }) => {
-//  return (
-//   <Stack spacing={1} alignItems='center'>
-//    {/* <DeleteTrade trade={trade} /> */}
-//    <SellTrade trade={trade} />
-//   </Stack>
-//  );
-// };
-
-// const SellTrade = ({ trade }: { trade: TRADE }) => {
-//  const { open, handleOpen, handleClose } = useModalHook();
-//  const [price, setPrice] = React.useState("");
-//  const { mutateAsync, isLoading } = useUpdateTradeHook();
-
-//  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
-//   setPrice(e.target.value);
-
-//  const handleSell = async () => {
-//   try {
-//    await mutateAsync({ sellPrice: price, id: trade._id });
-//    toast.success("Trade sold");
-//    handleClose();
-//   } catch (error) {
-//    handleApiError(error);
-//   }
-//  };
-
-//  return (
-//   <>
-//    <Button variant='contained' color='success' onClick={handleOpen}>
-//     Sell
-//    </Button>
-//    <Dialog open={open} onClose={handleClose}>
-//     <DialogTitle> Sell Trade </DialogTitle>
-//     <DialogContent>
-//      <Box sx={{ pt: 1 }}>
-//       <TextField label='Sell Price' value={price} onChange={handleChange} />
-//      </Box>
-//     </DialogContent>
-
-//     <DialogActions>
-//      <Button onClick={handleClose}>Cancel</Button>
-//      <Button color='success' onClick={handleSell} disabled={isLoading}>
-//       Sell
-//      </Button>
-//     </DialogActions>
-//    </Dialog>
-//   </>
-//  );
-// };
-
-// const DeleteTrade = ({ trade }: { trade: TRADE }) => {
-// 	const { open, handleOpen, handleClose } = useModalHook()
-// 	const { mutateAsync, isLoading } = useDeleteTradeHook()
-
-// 	const handleDelete = async () => {
-// 		try {
-// 			await mutateAsync(trade._id)
-// 			toast.success('Trade deleted')
-// 			handleClose()
-// 		} catch (error) {
-// 			handleApiError(error)
-// 		}
-// 	}
-// 	return (
-// 		<>
-// 			<Button variant="contained" color="error" onClick={handleOpen}>Delete</Button>
-// 			<Dialog open={open} onClose={handleClose}>
-// 				<DialogTitle> Delete Title  </DialogTitle>
-// 				<DialogContent>
-// 					<Typography>Are you sure you want to delete this trade?</Typography>
-// 				</DialogContent>
-
-// 				<DialogActions>
-// 					<Button onClick={handleClose}>Cancel</Button>
-// 					<Button color='error' onClick={handleDelete} disabled={isLoading}>Delete</Button>
-// 				</DialogActions>
-
-// 			</Dialog>
-// 		</>
-// 	)
-// }
-
 const TradeTable = ({ status }: { status: TRADE_STATUS }) => {
  const { limit, page, setLimit, setPage } = usePaginationHook({ limit: 100, page: 0 });
  const [symbol, setSymbol] = React.useState("");
- //  const [market, setMarket] = React.useState("SPOT");
 
  const { tickers, model } = useSelector((state: RootState) => state.tickers);
  const dispatch = useDispatch();
@@ -163,6 +76,14 @@ const TradeTable = ({ status }: { status: TRADE_STATUS }) => {
     flex: 1,
     minWidth: 100,
     hide: status === "CLOSED",
+
+    renderCell: ({ value }) => {
+     return (
+      <Stack direction='row' spacing={1}>
+       <Typography>{value}</Typography>
+      </Stack>
+     );
+    },
    },
    {
     field: "sellPrice",
@@ -217,11 +138,6 @@ const TradeTable = ({ status }: { status: TRADE_STATUS }) => {
        );
       })}
      </Select>
-     <Select sx={{ width: 200 }} size='small' value={model} onChange={handleModelChange}>
-      <MenuItem value='SPOT'>SPOT</MenuItem>
-      <MenuItem value='FUTURE'>FUTURE</MenuItem>
-     </Select>
-
      {status === "CLOSED" && (
       <Typography variant='h6' sx={{ fontWeight: "bold" }}>
        Total Profit {parseFloat(data?.totalProfit[0]?.sum || "0").toFixed(2)}

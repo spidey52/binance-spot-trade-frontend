@@ -1,6 +1,4 @@
-import { LinearProgress } from "@mui/material";
 import { DataGrid, DataGridProps, GridColDef } from "@mui/x-data-grid";
-import React, { useEffect } from "react";
 
 export interface TableDataProps extends DataGridProps {
  isLoading: boolean;
@@ -9,19 +7,12 @@ export interface TableDataProps extends DataGridProps {
  columns: GridColDef[];
  rows: any[];
  myheight?: string;
+ paginationMode?: "server" | "client";
 }
 
 const height = "80vh";
 
-const TableData = ({
- isLoading,
- isRefetching,
- data,
- columns,
- rows,
- myheight,
- ...rest
-}: TableDataProps) => {
+const TableData = ({ isLoading, isRefetching, data, columns, rows, myheight, ...rest }: TableDataProps) => {
  return (
   <>
    <DataGrid
@@ -29,7 +20,7 @@ const TableData = ({
     rows={rows}
     columns={columns}
     pagination
-    paginationMode="server"
+    paginationMode={rest.paginationMode || "server"}
     disableSelectionOnClick
     disableVirtualization
     sx={{

@@ -24,4 +24,37 @@ const useReportHook = ({ future }: Report) => {
  });
 };
 
-export default useReportHook;
+type ProfitBySymbolData = {
+ _id: string;
+ profit: number;
+};
+const useProfitBySymbolHook = () => {
+ const fetchProfitBySymbol = async () => {
+  return axios.get(API_URL.PROFIT_BY_SYMBOL);
+ };
+
+ return useQuery("profitBySymbol", fetchProfitBySymbol, {
+  select: (data) => data.data as ProfitBySymbolData[],
+ });
+};
+
+type ProfitCardData = { title: string; profit: number };
+
+const useProfitCardHook = () => {
+ const fetchProfits = async () => {
+  try {
+   //  const res = await axios.get(API_URL.PROFIT_CARD);
+   return axios.get(API_URL.PROFIT_CARD);
+   //  return res.data.result;
+  } catch (error) {
+   console.log(error);
+  }
+ };
+
+ return useQuery(["profit card"], fetchProfits, {
+  select: (res) => res?.data.result as ProfitCardData[],
+  refetchInterval: 1000 * 10,
+ });
+};
+
+export { useProfitBySymbolHook, useProfitCardHook, useReportHook };

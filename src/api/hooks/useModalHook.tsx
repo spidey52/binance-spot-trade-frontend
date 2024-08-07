@@ -1,11 +1,19 @@
-import { useState } from "react"
+import { useState } from "react";
 
-const useModalHook = () => { 
-	const [open, setOpen] = useState(false)
-	const handleOpen = () => setOpen(true)
-	const handleClose = () => setOpen(false)
+type ModalHook = {
+ initial: boolean;
+};
 
-	return { open, handleOpen, handleClose }
-}
+const initialState = {
+ initial: false,
+};
 
-export default useModalHook
+const useModalHook = ({ initial }: ModalHook = initialState) => {
+ const [open, setOpen] = useState(initial);
+ const handleOpen = () => setOpen(true);
+ const handleClose = () => setOpen(false);
+
+ return { open, handleOpen, handleClose };
+};
+
+export default useModalHook;
